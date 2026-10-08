@@ -1,60 +1,37 @@
 # Challenge ML
 
-Projet de travail pour le challenge `Toxic gas identification`.
+A working project for the `Toxic gas identification` challenge.
 
-## Architecture Du Projet
+## Project Structure
 
-### Donnees
+### Data
 
-- `data/raw/`
-  Donnees source du challenge :
+- `data/raw/` contains the challenge input files:
   - `x_train.csv`
   - `y_train.csv`
   - `x_test.csv`
+- `data/processed/` contains pipeline outputs, such as submission CSVs and intermediate files.
 
-- `data/processed/`
-  Toutes les sorties du pipeline :
-  - soumissions CSV
-  - fichiers intermediaires eventuels
-
-  Note :
-- les fichiers de donnees brutes ne sont pas inclus dans l'archive rendue afin d'en limiter la taille ;
-- les scripts supposent toutefois la presence de `data/raw/x_train.csv`, `data/raw/y_train.csv` et `data/raw/x_test.csv` ;
-- sans ces fichiers, le pipeline ne peut pas etre execute.
-
+The raw data files are not included in this repository to keep it small. The scripts expect `data/raw/x_train.csv`, `data/raw/y_train.csv`, and `data/raw/x_test.csv`. The pipeline cannot run without these files.
 
 ### Code
 
-- [src/challenge_ml/feature.py](src/challenge_ml/feature.py)
-  Preparation des donnees.
-
-  Fonctions importantes :
+- [src/challenge_ml/feature.py](src/challenge_ml/feature.py) prepares the data. Its main functions are:
   - `load_datasets()`
   - `feature_engineering(features)`
   - `build_training_data(use_features=True)`
 
-  Role :
-  - charger les CSV ;
-  - preparer les variables brutes ou enrichies ;
-  - construire `X_train`, `y_train`, `X_test`, `test_ids`.
+  It loads the CSV files, prepares raw or engineered features, and builds `X_train`, `y_train`, `X_test`, and `test_ids`.
 
-- [src/challenge_ml/split.py](src/challenge_ml/split.py)
-  Logique de validation locale.
-
-  Fonctions importantes :
+- [src/challenge_ml/split.py](src/challenge_ml/split.py) provides local validation splits. Its main functions are:
   - `random_split(...)`
   - `humidity_split(...)`
   - `random_split_from_features(...)`
   - `humidity_split_from_features(...)`
 
-  Role :
-  - fabriquer un split aleatoire ;
-  - fabriquer un split oriente `Humidity`.
+  These functions create random splits or splits based on `Humidity`.
 
-- [src/challenge_ml/train_xgboost.py](src/challenge_ml/train_xgboost.py)
-  Pipeline principal d'entrainement, d'evaluation et de soumission.
-
-  Fonctions importantes :
+- [src/challenge_ml/train_xgboost.py](src/challenge_ml/train_xgboost.py) contains the main training, evaluation, and submission pipeline. Its main functions are:
   - `build_xgb_model(...)`
   - `evaluate_model(...)`
   - `compare_raw_vs_features()`
@@ -63,81 +40,63 @@ Projet de travail pour le challenge `Toxic gas identification`.
   - `build_raw_submission()`
   - `build_regularized_feature_submission()`
 
-## Fonctionnement Du Pipeline
+## Pipeline Overview
 
-Le projet a deux usages distincts.
+The project supports two workflows.
 
-### 1. Evaluation Locale
+### 1. Local Evaluation
 
-Utiliser les splits pour comparer plusieurs idees avant soumission.
+Use the available splits to compare approaches before creating a submission:
 
-Splits disponibles :
 - `random`
 - `humidity`
 
-Ces splits servent a :
-- comparer `raw` vs `features`
-- tester une version plus regularisee
-- mesurer localement la robustesse
+These splits help compare raw and engineered features, try a more regularized model, and assess local robustness.
 
-### 2. Soumission Finale
+### 2. Final Submission
 
-Une fois un modele choisi :
-- on entraine sur tout `x_train` / `y_train`
-- on predit sur `x_test`
-- on genere un CSV dans `data/processed`
+After choosing a model, the pipeline trains on all of `x_train` and `y_train`, predicts on `x_test`, and writes a CSV file to `data/processed/`. This is handled by `train_full_and_predict(...)`.
 
-C'est le role de :
-- `train_full_and_predict(...)`
+## Commands
 
-## Commandes A Executer
-
-### Installer L'Environnement
+### Set Up the Environment
 
 ```bash
 uv sync
 uv pip install -e .
 ```
 
-Ces deux commandes :
-- installent les dependances ;
-- installent le package local `challenge_ml` en mode editable ;
-- permettent aux imports du type `from challenge_ml...` de fonctionner correctement.
+These commands install the dependencies and the local `challenge_ml` package in editable mode, so imports such as `from challenge_ml...` work.
 
-### Lancer Les Experiences Locales
+### Run Local Experiments
 
-Depuis la racine du projet :
+From the repository root, run:
 
 ```bash
 uv run python -m challenge_ml.train_xgboost
 ```
 
-Cette commande lance :
-- la comparaison `raw` vs `features`
-- le modele `features regularized`
-- un ensemble local simple
+This runs the raw-versus-features comparison, the regularized feature model, and a simple local ensemble.
 
-### Generer Une Soumission `raw`
+### Generate a Raw-Model Submission
 
 ```bash
 uv run python -c "from challenge_ml.train_xgboost import build_raw_submission; build_raw_submission()"
 ```
 
-Fichier généré :
-- `data/processed/submission_xgboost_raw.csv`
+The generated file is `data/processed/submission_xgboost_raw.csv`.
 
-### Generer Une Soumission `features regularized`
+### Generate a Regularized Feature-Model Submission
 
 ```bash
 uv run python -c "from challenge_ml.train_xgboost import build_regularized_feature_submission; build_regularized_feature_submission()"
 ```
 
-Fichier genere :
-- `data/processed/submission_xgboost_features_regularized.csv`
+The generated file is `data/processed/submission_xgboost_features_regularized.csv`.
 
-### Variante Sans `uv`
+### Install Without `uv`
 
-Si besoin, une installation plus classique est aussi possible :
+Alternatively, create a virtual environment and install the requirements with `pip`:
 
 ```bash
 python -m venv .venv
@@ -146,9 +105,9 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-## Imports Utiles
+## Useful Imports
 
-### Charger Les Donnees Preparees
+### Load Prepared Data
 
 ```python
 from challenge_ml.feature import build_training_data
@@ -156,7 +115,7 @@ from challenge_ml.feature import build_training_data
 X_train, y_train, X_test, test_ids = build_training_data(use_features=True)
 ```
 
-### Utiliser Un Split Local
+### Create a Local Split
 
 ```python
 from challenge_ml.split import random_split_from_features, humidity_split_from_features
@@ -164,13 +123,13 @@ from challenge_ml.split import random_split_from_features, humidity_split_from_f
 X_train, X_valid, y_train, y_valid = random_split_from_features(use_features=True)
 ```
 
-ou
+Or use the humidity-based split with raw features:
 
 ```python
 X_train, X_valid, y_train, y_valid = humidity_split_from_features(use_features=False)
 ```
 
-### Generer Une Soumission Depuis Python
+### Generate a Submission from Python
 
 ```python
 from challenge_ml.train_xgboost import build_raw_submission
@@ -178,11 +137,6 @@ from challenge_ml.train_xgboost import build_raw_submission
 model, submission = build_raw_submission()
 ```
 
-## Format D'Une Soumission
+## Submission Format
 
-Le CSV final doit contenir :
-- `ID`
-- `c01` a `c23`
-- `c15` remise a `0.0`
-
-Le pipeline gere cela automatiquement.
+The final CSV must contain `ID` and columns `c01` through `c23`. The pipeline sets `c15` to `0.0` automatically.
