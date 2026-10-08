@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# macOS and Jupyter
+.DS_Store
+.ipynb_checkpoints/
+
+# Challenge data and generated submissions
+/data/raw/
+/data/processed/
+
+# Personal report; keep local unless deliberately published
+/Rapport_Timothee_crouzet.pdf
