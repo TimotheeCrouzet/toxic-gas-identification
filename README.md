@@ -1,6 +1,6 @@
 # Challenge ML
 
-A working project for the `Toxic gas identification` challenge.
+This project was developed as part of [ChallengeData's Toxic gas identification competition](https://challengedata.ens.fr/participants/challenges/156/), organized by Bertin Technologies. The competition uses readings from sensors in a handheld gas detector to predict alarm levels for 23 gas-related classes. Its goal is to identify toxic gases, including under humidity and concentration conditions not represented in the training data, and help adapt detectors to new gases.
 
 ## Project Structure
 
